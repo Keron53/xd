@@ -17,7 +17,7 @@ const createModel = async (req, res, next) => {
 
 const getAllModels = async (req, res, next) => {
     try {
-        const allModelos = await pool.query("SELECT * FROM Modelo");
+        const allModelos = await pool.query("SELECT * FROM Modelo ORDER BY id_modelo DESC");
         res.json(allModelos.rows);
     } catch (error) {
         next(error);
@@ -33,6 +33,20 @@ const getModel = async (req, res, next) => {
             return res.status(404).json({ message: "Modelo not found" });
 
         res.json(result.rows[0]);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getModelByNombre = async (req, res, next) => {
+    try {
+        const { nombre_modelo } = req.params;
+        const result = await pool.query("SELECT * FROM Modelo WHERE nombre_modelo ILIKE $1", [`%${nombre_modelo}%`]);
+
+        if (result.rows.length === 0)
+            return res.status(404).json({ message: "No models found with the specified name" });
+
+        res.json(result.rows);
     } catch (error) {
         next(error);
     }
@@ -75,6 +89,7 @@ module.exports = {
     createModel,
     getAllModels,
     getModel,
+    getModelByNombre,
     updateModel,
     deleteModel
 }

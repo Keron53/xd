@@ -17,7 +17,7 @@ const createIPad = async (req, res, next) => {
 
 const getAllIPads = async (req, res, next) => {
     try {
-        const allIPads = await pool.query("SELECT * FROM IPad");
+        const allIPads = await pool.query("SELECT * FROM IPad ORDER BY id_ipad DESC");
         res.json(allIPads.rows);
     } catch (error) {
         next(error);
@@ -33,6 +33,54 @@ const getIPad = async (req, res, next) => {
             return res.status(404).json({ message: "iPad not found" });
 
         res.json(result.rows[0]);
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+const getIPadByModel = async (req, res, next) => {
+    try {
+        const { id_modelo } = req.params;
+        const result = await pool.query("SELECT * FROM IPad WHERE id_modelo = $1 ORDER BY id_ipad DESC", [id_modelo]);
+
+        if (result.rows.length === 0)
+            return res.status(404).json({ message: "No iPads found with the specified model ID" });
+
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getIPadByColor = async (req, res, next) => {
+    try {
+        const { color } = req.params;
+        const result = await pool.query("SELECT * FROM IPad WHERE color ILIKE $1 ORDER BY id_ipad DESC", [`%${color}%`]);
+
+        if (result.rows.length === 0)
+            return res.status(404).json({ message: "No iPads found with the specified color" });
+
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getIPadsNotSold = async (req, res, next) => {
+    try {
+        const result = await pool.query("SELECT * FROM IPad WHERE vendido = false ORDER BY id_ipad DESC");
+
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getIPadsSold = async (req, res, next) => {
+    try {
+        const result = await pool.query("SELECT * FROM IPad WHERE vendido = true ORDER BY id_ipad DESC");
+        res.json(result.rows);
     } catch (error) {
         next(error);
     }
@@ -75,6 +123,10 @@ module.exports = {
     createIPad,
     getAllIPads,
     getIPad,
+    getIPadsNotSold,
+    getIPadsSold,
+    getIPadByModel,
+    getIPadByColor,
     updateIPad,
     deleteIPad
 }
