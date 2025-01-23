@@ -10,6 +10,6 @@ COPY . .
 
 RUN npm run build
 
-CMD ["npx", "serve", "-s", "build", "p", "81"]
+CMD ["npx", "serve", "-s", "build", "-p", "81"]
 
 EXPOSE 81
